@@ -1,7 +1,7 @@
 [versions]
-android-plugins = "7.0.0"
 kotest = "5.8.1"
 kotlin = "1.9.23"
+kmqtt = "0.4.6"
 
 [libraries]
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
@@ -10,6 +10,14 @@ kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", ve
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
 kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
 kotlin-test-annotations-common = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "oorg.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version = "1.2.3" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.8.0" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version = "6.0.3" }
+kmqtt-common = { module = "io.github.davidepianca98:kmqtt-common", version.ref = "kmqtt" }
+kmqtt-client = { module = "io.github.davidepianca98:kmqtt-client", version.ref = "kmqtt" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.12" }
+
 
 [bundles]
 kotest-common = [
@@ -21,6 +29,10 @@ kotlin-testing-common = [
     "kotlin-test-common",
     "kotlin-test-annotations-common",
 ]
+kmqtt = [
+    "kmqtt-client",
+    "kmqtt-common"
+]
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -29,6 +41,4 @@ dokka = "org.jetbrains.dokka:1.9.20"
 gitSemVer = "org.danilopianini.git-sensitive-semantic-versioning-gradle-plugin:3.1.3"
 kotlin-qa = "org.danilopianini.gradle-kotlin-qa:0.60.3"
 multiJvmTesting = "org.danilopianini.multi-jvm-test-plugin:0.5.8"
-npm-publish = "dev.petuska.npm.publish:3.4.2"
-publishOnCentral = "org.danilopianini.publish-on-central:5.0.25"
 taskTree = "com.dorongold.task-tree:2.1.1"

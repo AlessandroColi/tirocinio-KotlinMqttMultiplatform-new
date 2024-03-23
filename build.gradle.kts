@@ -11,12 +11,8 @@ plugins {
     alias(libs.plugins.gitSemVer)
     alias(libs.plugins.kotlin.qa)
     alias(libs.plugins.multiJvmTesting)
-    alias(libs.plugins.npm.publish)
-    alias(libs.plugins.publishOnCentral)
     alias(libs.plugins.taskTree)
 }
-
-group = "org.danilopianini"
 
 repositories {
     google()
@@ -47,12 +43,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-                api("io.arrow-kt:arrow-core:1.2.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-                api("io.github.oshai:kotlin-logging:6.0.3")
-                implementation("io.github.davidepianca98:kmqtt-common:0.4.6")
-                implementation("io.github.davidepianca98:kmqtt-client:0.4.6")
+                implementation(libs.kotlinx.serialization.json)
+                api(libs.arrow.core)
+                implementation(libs.kotlinx.coroutines.core)
+                api(libs.kotlin.logging)
+                implementation(libs.bundles.kmqtt)
             }
         }
         val commonTest by getting {
@@ -63,7 +58,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                api("org.slf4j:slf4j-simple:2.0.9")
+                api(libs.slf4j.simple)
             }
         }
         val jvmTest by getting {
@@ -171,50 +166,5 @@ signing {
         val signingKey: String? by project
         val signingPassword: String? by project
         useInMemoryPgpKeys(signingKey, signingPassword)
-    }
-}
-
-publishOnCentral {
-    projectLongName.set("Template for Kotlin Multiplatform Project")
-    projectDescription.set("A template repository for Kotlin Multiplatform projects")
-    repository("https://maven.pkg.github.com/danysk/${rootProject.name}".lowercase()) {
-        user.set("DanySK")
-        password.set(System.getenv("GITHUB_TOKEN"))
-    }
-    publishing {
-        publications {
-            withType<MavenPublication> {
-                pom {
-                    developers {
-                        developer {
-                            name.set("Danilo Pianini")
-                            email.set("danilo.pianini@gmail.com")
-                            url.set("http://www.danilopianini.org/")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-npmPublish {
-    registries {
-        register("npmjs") {
-            uri.set("https://registry.npmjs.org")
-            val npmToken: String? by project
-            authToken.set(npmToken)
-            dry.set(npmToken.isNullOrBlank())
-        }
-    }
-}
-
-publishing {
-    publications {
-        publications.withType<MavenPublication>().configureEach {
-            if ("OSSRH" !in name) {
-                artifact(tasks.javadocJar)
-            }
-        }
     }
 }
