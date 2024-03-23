@@ -1,4 +1,6 @@
 import org.danilopianini.gradle.mavencentral.JavadocJar
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -24,19 +26,44 @@ repositories {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
+            filter {
+                isFailOnNoMatchingTests = false
+            }
+            testLogging {
+                showExceptions = true
+                events = setOf(
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                )
+                exceptionFormat = TestExceptionFormat.FULL
+            }
         }
     }
 
     sourceSets {
-        val commonMain by getting { }
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+                api("io.arrow-kt:arrow-core:1.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+                api("io.github.oshai:kotlin-logging:6.0.3")
+                implementation("io.github.davidepianca98:kmqtt-common:0.4.6")
+                implementation("io.github.davidepianca98:kmqtt-client:0.4.6")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.bundles.kotlin.testing.common)
                 implementation(libs.bundles.kotest.common)
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                api("org.slf4j:slf4j-simple:2.0.9")
             }
         }
         val jvmTest by getting {
@@ -86,7 +113,7 @@ kotlin {
     iosArm64(nativeSetup)
     iosX64(nativeSetup)
     iosSimulatorArm64(nativeSetup)
-    watchosArm32(nativeSetup)
+//    watchosArm32(nativeSetup)
     watchosX64(nativeSetup)
     watchosSimulatorArm64(nativeSetup)
     tvosArm64(nativeSetup)
