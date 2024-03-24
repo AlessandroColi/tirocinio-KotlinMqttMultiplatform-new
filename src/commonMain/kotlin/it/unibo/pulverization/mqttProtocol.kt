@@ -54,7 +54,7 @@ class MqttProtocol(
             async(coroutineDispatcher) {
                 Either.catch { client.publish(
                     retain = true,
-                    Qos.AT_MOST_ONCE,
+                    Qos.EXACTLY_ONCE,
                     topic,
                     message.toUByteArray(),
                     MQTT5Properties(
@@ -93,7 +93,7 @@ class MqttProtocol(
 
                 client.subscribe(listOf(
                     Subscription("MqttProtocol_Test/#",
-                        SubscriptionOptions(qos = Qos.AT_MOST_ONCE))))
+                        SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
 
                 while(!client.connackReceived){
                     client.step()
@@ -109,9 +109,7 @@ class MqttProtocol(
     }
 
     fun finalize(): Either<ProtocolError, Unit>  {
-        if(client.connackReceived){
-            client.disconnect(ReasonCode.SUCCESS)
-        }
+        client.disconnect(ReasonCode.SUCCESS)
         scope.coroutineContext.cancelChildren()
         logger.debug { "client finalized" }
         return Unit.right()

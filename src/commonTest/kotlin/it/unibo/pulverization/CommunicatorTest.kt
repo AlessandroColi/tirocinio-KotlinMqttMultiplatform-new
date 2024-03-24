@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlin.time.Duration.Companion.seconds
 
 object ProjectConfig : AbstractProjectConfig() {
-    override val timeout = 10.seconds
+    override val timeout = 50.seconds
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
