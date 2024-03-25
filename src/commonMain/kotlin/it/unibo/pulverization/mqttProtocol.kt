@@ -51,7 +51,6 @@ class MqttProtocol(
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
-            async(coroutineDispatcher) {
                 Either.catch { client.publish(
                     retain = true,
                     Qos.EXACTLY_ONCE,
@@ -61,8 +60,8 @@ class MqttProtocol(
                         serverKeepAlive = 5000u,
                         retainAvailable = 1u,
                     )
-                ) }.mapLeft { ProtocolError.ProtocolException(it) }
-            }.await().bind()
+                )
+                }.mapLeft { ProtocolError.ProtocolException(it) }
         }
     }
 
