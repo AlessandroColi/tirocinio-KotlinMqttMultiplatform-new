@@ -27,4 +27,4 @@ gitHooks {
     createHooks()
 }
 
-rootProject.name = "Template-for-Kotlin-Multiplatform-Projects".lowercase()
+rootProject.name = "tirocinio-KotlinMqttMultiplatform-new".lowercase()
