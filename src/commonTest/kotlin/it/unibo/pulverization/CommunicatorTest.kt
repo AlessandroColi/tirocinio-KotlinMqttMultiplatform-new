@@ -52,7 +52,9 @@ class CommunicatorTest : StringSpec({
         initResult shouldBe Either.Right(Unit)
         val invalidSourceEntity = Entity("invalidSource")
         val invalidDestinationEntity = Entity("invalidDestination")
-        val result = mqttProtocol.writeToChannel(invalidSourceEntity, invalidDestinationEntity, "error Test".encodeToByteArray())
+        val result = mqttProtocol.writeToChannel(
+            invalidSourceEntity, invalidDestinationEntity, "error Test".encodeToByteArray())
+
         result shouldBe Either.Left(ProtocolError.EntityNotRegistered(invalidDestinationEntity))
         val finalizeResult = mqttProtocol.finalize()
         finalizeResult shouldBe Either.Right(Unit)
@@ -69,7 +71,9 @@ class CommunicatorTest : StringSpec({
         initResult shouldBe Either.Right(Unit)
         val invalidSourceEntity = Entity("invalidSource")
         val invalidDestinationEntity = Entity("invalidDestination")
-        val flowResult = mqttProtocol.readFromChannel(invalidSourceEntity, invalidDestinationEntity)
+        val flowResult = mqttProtocol.readFromChannel(
+            invalidSourceEntity, invalidDestinationEntity)
+
         flowResult shouldBe Either.Left(ProtocolError.EntityNotRegistered(invalidSourceEntity))
         val finalizeResult = mqttProtocol.finalize()
         finalizeResult shouldBe Either.Right(Unit)
@@ -100,12 +104,12 @@ class CommunicatorTest : StringSpec({
             resultCollect shouldBe Either.Right(Unit)
         }
         
-        val result = mqttProtocol.writeToChannel(sourceEntity, destinationEntity, message.encodeToByteArray())
-        result shouldBe Either.Right(Unit)
+        val result = mqttProtocol.writeToChannel(
+            sourceEntity, destinationEntity, message.encodeToByteArray())
 
+        result shouldBe Either.Right(Unit)
         receiveJob.join()
         read shouldBe message
-
         val finalizeResult = mqttProtocol.finalize()
         finalizeResult shouldBe Either.Right(Unit)
     }
