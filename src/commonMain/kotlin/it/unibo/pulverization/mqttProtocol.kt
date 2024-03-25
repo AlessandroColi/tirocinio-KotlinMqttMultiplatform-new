@@ -96,6 +96,7 @@ class MqttProtocol(
                         SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
 
                 while(!client.connackReceived){
+                    delay(50)  // avoid blocking the cpu
                     client.step()
                 }
 
