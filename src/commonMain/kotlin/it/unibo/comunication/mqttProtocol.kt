@@ -26,6 +26,7 @@ class MqttProtocol(
     private val port: Int = 1884,
     private val username: String? = null,
     private val password: String? = null,
+    private val mainTopic: String = "MqttProtocol_Test",
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : Protocol {
     private val logger = KotlinLogging.logger("MqttProtocol")
@@ -90,7 +91,7 @@ class MqttProtocol(
                 }
 
                 client.subscribe(listOf(
-                    Subscription("MqttProtocol_Test/#",
+                    Subscription("${mainTopic}/#",
                         SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
 
                 while(!client.connackReceived){
@@ -121,9 +122,9 @@ class MqttProtocol(
      */
     private fun toTopics(source: Entity, destination: Entity): String {
         return if (source.id != null && destination.id != null) {
-            "MqttProtocol_Test/${source.entityName}/${destination.entityName}/${destination.id}"
+            "${mainTopic}/${source.entityName}/${destination.entityName}/${destination.id}"
         } else {
-            "MqttProtocol_Test/${source.entityName}/${destination.entityName}"
+            "${mainTopic}/${source.entityName}/${destination.entityName}"
         }
     }
 }

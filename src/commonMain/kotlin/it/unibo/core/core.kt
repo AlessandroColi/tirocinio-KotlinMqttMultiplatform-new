@@ -1,27 +1,27 @@
 package it.unibo.core
 
-import arrow.core.Either
-import arrow.core.right
 import it.unibo.comunication.Entity
 import it.unibo.comunication.MqttProtocol
 import it.unibo.comunication.Protocol
 import it.unibo.comunication.ProtocolError
 import it.unibo.gui.SimpleGui
 import it.unibo.gui.gui
+import kotlinx.coroutines.*
+
 
 class core {
 
-    private val source = Entity("from")
-    private val dest = Entity("to")
+    private val source = Entity("esp32")
+    private val dest = Entity("backend")
     private var gui: gui = SimpleGui()
-    private var mqtt: Protocol = MqttProtocol()
+    private var mqtt: Protocol = MqttProtocol(host = "broker.mqtt-dashboard.com", mainTopic = "RiverMonitoring")
 
-    private suspend fun init(){
+    suspend fun init(){
         mqtt.initialize()
         mqtt.setupChannel(source,dest)
     }
 
-    private suspend fun run(){
+    suspend fun run(){
         val res = mqtt.readFromChannel(source, dest)
         res.onLeft { protocolError ->
             when (protocolError) {
@@ -37,10 +37,14 @@ class core {
             }
         }
     }
+}
 
-    suspend fun main(){
-        init()
-        run()
+fun main() {
+    val app = core()
+    println("launching app")
+    runBlocking {
+        app.init()
+        app.run()
     }
-
+    println("leaving app")
 }
