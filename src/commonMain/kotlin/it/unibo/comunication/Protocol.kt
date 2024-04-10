@@ -15,7 +15,7 @@ data class Entity(val entityName: String, val id: String? = null, val metadata: 
  * Represents the low-level operations needed to communicate with another entity.
  * The communication is done through a channel that is set up by the [Protocol].
  */
-interface Protocol {
+interface Protocol : Initializable {
     /**
      * Sets up the communication channel with the given [source].
      */
