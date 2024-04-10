@@ -1,4 +1,4 @@
-package it.unibo.pulverization
+package it.unibo.comunication
 
 import MQTTClient
 import arrow.core.Either
@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import mqtt.MQTTVersion
 import mqtt.packets.Qos
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.asSharedFlow
 import mqtt.Subscription
 import mqtt.packets.mqttv5.MQTT5Properties

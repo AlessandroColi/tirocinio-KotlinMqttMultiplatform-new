@@ -1,4 +1,4 @@
-package it.unibo.pulverization
+package it.unibo.comunication
 
 /**
  * Represents all the possible errors that a [Protocol] can raise.

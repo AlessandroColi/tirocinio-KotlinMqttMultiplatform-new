@@ -1,4 +1,4 @@
-package it.unibo.pulverization
+package it.unibo.comunication
 
 import arrow.core.Either
 import kotlinx.coroutines.flow.Flow
