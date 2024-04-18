@@ -37,7 +37,7 @@ class MqttProtocol(
     private lateinit var listenerJob: Job
     private lateinit var client : MQTTClient
     override suspend fun setupChannel(source: Entity, destination: Entity) {
-        logger.debug { "Setting up channel for entity $source" }
+        println( "Setting up channel for entity $source" )
         registeredTopics += (source to destination) to toTopics(source, destination)
         registeredTopics += (destination to source) to toTopics(destination, source)
         topicChannels += toTopics(source, destination) to MutableSharedFlow(1)
@@ -47,13 +47,13 @@ class MqttProtocol(
     override suspend fun writeToChannel(from: Entity, to: Entity, message: ByteArray): Either<ProtocolError, Unit> = coroutineScope {
         either {
             val topic = registeredTopics[Pair(from, to)]
-            logger.debug { "Writing message $message to topic $topic" }
+            println( "Writing message $message to topic $topic" )
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
                 Either.catch { client.publish(
                     retain = true,
-                    Qos.EXACTLY_ONCE,
+                    Qos.AT_LEAST_ONCE,
                     topic,
                     message.toUByteArray(),
                     MQTT5Properties(
@@ -68,7 +68,7 @@ class MqttProtocol(
     override fun readFromChannel(from: Entity, to: Entity): Either<ProtocolError, Flow<ByteArray>> = either {
         val candidateTopic = ensureNotNull(registeredTopics[Pair(from, to)]) { ProtocolError.EntityNotRegistered(from) }
         val channel = ensureNotNull(topicChannels[candidateTopic]) { ProtocolError.EntityNotRegistered(from) }
-        logger.debug { "Reading from topic $candidateTopic" }
+        println( "Reading from topic $candidateTopic" )
         channel.asSharedFlow()
     }
 
@@ -85,14 +85,14 @@ class MqttProtocol(
                     keepAlive = 5000,
                     cleanStart = false,
                 ){
-                    logger.debug { "New message arrived on topic $it.topicName" }
+                    println( "New message arrived on topic $it.topicName" )
                     requireNotNull(it.payload) { "Message cannot be null" }
                     topicChannels[it.topicName]?.tryEmit(it.payload!!.toByteArray())
                 }
 
                 client.subscribe(listOf(
                     Subscription("${mainTopic}/#",
-                        SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
+                        SubscriptionOptions(qos = Qos.AT_LEAST_ONCE))))
 
                 while(!client.connackReceived){
                     delay(50)  // avoid blocking the cpu
@@ -102,8 +102,11 @@ class MqttProtocol(
             }.mapLeft { ProtocolError.ProtocolException(it) }.bind()
 
             listenerJob = scope.launch {
-                logger.debug { "client setup" }
-                client.run()
+                println( "client setup" )
+                while(true){
+                    delay(50)  // avoid blocking the cpu
+                    client.step()
+                }
             }
         }
     }
@@ -111,7 +114,7 @@ class MqttProtocol(
     override fun finalize(): Either<ProtocolError, Unit>  {
         client.disconnect(ReasonCode.SUCCESS)
         scope.coroutineContext.cancelChildren()
-        logger.debug { "client finalized" }
+        println( "client finalized" )
         return Unit.right()
     }
 
