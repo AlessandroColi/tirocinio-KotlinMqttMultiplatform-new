@@ -37,7 +37,7 @@ class MqttProtocol(
     private lateinit var listenerJob: Job
     private lateinit var client : MQTTClient
     override suspend fun setupChannel(source: Entity, destination: Entity) {
-        println( "Setting up channel for entity $source" )
+        logger.debug { "Setting up channel for entity $source" }
         registeredTopics += (source to destination) to toTopics(source, destination)
         registeredTopics += (destination to source) to toTopics(destination, source)
         topicChannels += toTopics(source, destination) to MutableSharedFlow(1)
@@ -47,7 +47,7 @@ class MqttProtocol(
     override suspend fun writeToChannel(from: Entity, to: Entity, message: ByteArray): Either<ProtocolError, Unit> = coroutineScope {
         either {
             val topic = registeredTopics[Pair(from, to)]
-            println( "Writing message $message to topic $topic" )
+            logger.debug { "Writing message $message to topic $topic" }
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
@@ -68,7 +68,7 @@ class MqttProtocol(
     override fun readFromChannel(from: Entity, to: Entity): Either<ProtocolError, Flow<ByteArray>> = either {
         val candidateTopic = ensureNotNull(registeredTopics[Pair(from, to)]) { ProtocolError.EntityNotRegistered(from) }
         val channel = ensureNotNull(topicChannels[candidateTopic]) { ProtocolError.EntityNotRegistered(from) }
-        println( "Reading from topic $candidateTopic" )
+        logger.debug { "Reading from topic $candidateTopic" }
         channel.asSharedFlow()
     }
 
@@ -85,7 +85,7 @@ class MqttProtocol(
                     keepAlive = 5000,
                     cleanStart = false,
                 ){
-                    println( "New message arrived on topic $it.topicName" )
+                    logger.debug { "New message arrived on topic $it.topicName" }
                     requireNotNull(it.payload) { "Message cannot be null" }
                     topicChannels[it.topicName]?.tryEmit(it.payload!!.toByteArray())
                 }
@@ -102,7 +102,7 @@ class MqttProtocol(
             }.mapLeft { ProtocolError.ProtocolException(it) }.bind()
 
             listenerJob = scope.launch {
-                println( "client setup" )
+                logger.debug { "client setup" }
                 while(true){
                     delay(50)  // avoid blocking the cpu
                     client.step()
@@ -114,7 +114,7 @@ class MqttProtocol(
     override fun finalize(): Either<ProtocolError, Unit>  {
         client.disconnect(ReasonCode.SUCCESS)
         scope.coroutineContext.cancelChildren()
-        println( "client finalized" )
+        logger.debug { "client finalized" }
         return Unit.right()
     }
 

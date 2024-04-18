@@ -53,6 +53,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                dependsOn(commonMain)
                 api(libs.slf4j.simple)
             }
         }
