@@ -1,6 +1,6 @@
 package it.unibo.gui
 
-interface gui {
+interface Gui {
     /**
      * writes something as output
      */

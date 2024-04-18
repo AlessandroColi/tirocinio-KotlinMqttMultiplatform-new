@@ -5,16 +5,16 @@ import it.unibo.comunication.MqttProtocol
 import it.unibo.comunication.Protocol
 import it.unibo.comunication.ProtocolError
 import it.unibo.gui.SimpleGui
-import it.unibo.gui.gui
+import it.unibo.gui.Gui
 import kotlinx.coroutines.*
 
 
-class core {
+class Core {
 
     private val source = Entity("esp32")
     private val dest = Entity("backend")
-    private var gui: gui = SimpleGui()
-    private var mqtt: Protocol = MqttProtocol(host = "broker.mqtt-dashboard.com", mainTopic = "RiverMonitoring")
+    private var gui: Gui = SimpleGui()
+    private var mqtt: Protocol = MqttProtocol("test.mosquitto.org",1883, mainTopic = "RiverMonitoring")
 
     suspend fun init(){
         mqtt.initialize()
@@ -40,11 +40,12 @@ class core {
 }
 
 fun main() {
-    val app = core()
+    val app = Core()
     println("launching app")
     runBlocking {
         app.init()
         app.run()
     }
+
     println("leaving app")
 }
