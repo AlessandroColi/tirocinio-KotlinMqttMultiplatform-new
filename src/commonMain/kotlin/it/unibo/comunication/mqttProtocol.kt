@@ -53,7 +53,7 @@ class MqttProtocol(
 
                 Either.catch { client.publish(
                     retain = true,
-                    Qos.AT_LEAST_ONCE,
+                    Qos.EXACTLY_ONCE,
                     topic,
                     message.toUByteArray(),
                     MQTT5Properties(
@@ -92,7 +92,7 @@ class MqttProtocol(
 
                 client.subscribe(listOf(
                     Subscription("${mainTopic}/#",
-                        SubscriptionOptions(qos = Qos.AT_LEAST_ONCE))))
+                        SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
 
                 while(!client.connackReceived){
                     delay(50)  // avoid blocking the cpu
