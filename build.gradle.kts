@@ -42,7 +42,6 @@ kotlin {
                 api(libs.arrow.core)
                 implementation(libs.kotlinx.coroutines.core)
                 api(libs.kotlin.logging)
-                implementation(libs.bundles.kmqtt)
             }
         }
         val commonTest by getting {
@@ -51,9 +50,17 @@ kotlin {
                 implementation(libs.bundles.kotest.common)
             }
         }
+
+        val multithreadMain by creating{
+            dependencies{
+                dependsOn(commonMain)
+                implementation(libs.bundles.kmqtt)
+            }
+        }
+
         val jvmMain by getting {
             dependencies {
-                dependsOn(commonMain)
+                dependsOn(multithreadMain)
                 api(libs.slf4j.simple)
             }
         }
@@ -63,7 +70,7 @@ kotlin {
             }
         }
         val nativeMain by creating {
-            dependsOn(commonMain)
+            dependsOn(multithreadMain)
         }
         val nativeTest by creating {
             dependsOn(commonTest)

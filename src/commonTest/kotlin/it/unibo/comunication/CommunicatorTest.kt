@@ -18,9 +18,9 @@ object ProjectConfig : AbstractProjectConfig() {
 @OptIn(ExperimentalCoroutinesApi::class)
 class CommunicatorTest : StringSpec({
 
-    val host = "test.mosquitto.org"
-    val port = 1883
-//    val password = "password"
+    val host = "localhost"
+    val port = 1884
+    val password = "password"
 
     val sourceEntity = Entity("source")
     val destinationEntity = Entity("destination")
@@ -29,8 +29,8 @@ class CommunicatorTest : StringSpec({
         val mqttProtocol = MqttProtocol(
             host = host,
             port = port,
-//            username = "init",
-//            password = password,
+            username = "init",
+            password = password,
         )
         val initResult = mqttProtocol.initialize()
         initResult shouldBe Either.Right(Unit)
@@ -45,8 +45,8 @@ class CommunicatorTest : StringSpec({
         val mqttProtocol = MqttProtocol(
             host = host,
             port = port,
-//            username = "fail1",
-//            password = password,
+            username = "fail1",
+            password = password,
         )
         val initResult = mqttProtocol.initialize()
         initResult shouldBe Either.Right(Unit)
@@ -64,8 +64,8 @@ class CommunicatorTest : StringSpec({
         val mqttProtocol = MqttProtocol(
             host = host,
             port = port,
-//            username = "fail2",
-//            password = password,
+            username = "fail2",
+            password = password,
         )
         val initResult = mqttProtocol.initialize()
         initResult shouldBe Either.Right(Unit)
@@ -83,8 +83,8 @@ class CommunicatorTest : StringSpec({
         val mqttProtocol = MqttProtocol(
             host = host,
             port = port,
-//            username = "user",
-//            password = password,
+            username = "user",
+            password = password,
         )
         val initResult = mqttProtocol.initialize()
         initResult shouldBe Either.Right(Unit)

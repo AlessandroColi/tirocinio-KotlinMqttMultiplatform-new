@@ -21,13 +21,13 @@ import mqtt.packets.mqttv5.SubscriptionOptions
  * Represents the MQTT protocol.
  */
 @OptIn(ExperimentalUnsignedTypes::class)
-class MqttProtocol(
-    private val host: String = "localhost",
-    private val port: Int = 1884,
-    private val username: String? = null,
-    private val password: String? = null,
-    private val mainTopic: String = "MqttProtocol_Test",
-    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+actual class MqttProtocol actual constructor(
+    private val host: String,
+    private val port: Int,
+    private val username: String?,
+    private val password: String?,
+    private val mainTopic: String,
+    private val coroutineDispatcher: CoroutineDispatcher
 ) : Protocol {
     private val logger = KotlinLogging.logger("MqttProtocol")
     private val scope = CoroutineScope(coroutineDispatcher + Job())
@@ -36,7 +36,7 @@ class MqttProtocol(
     private val topicChannels = mutableMapOf<String, MutableSharedFlow<ByteArray>>()
     private lateinit var listenerJob: Job
     private lateinit var client : MQTTClient
-    override suspend fun setupChannel(source: Entity, destination: Entity) {
+    actual override suspend fun setupChannel(source: Entity, destination: Entity) {
         logger.debug { "Setting up channel for entity $source" }
         registeredTopics += (source to destination) to toTopics(source, destination)
         registeredTopics += (destination to source) to toTopics(destination, source)
@@ -44,7 +44,7 @@ class MqttProtocol(
         topicChannels += toTopics(destination, source) to MutableSharedFlow(1)
     }
 
-    override suspend fun writeToChannel(from: Entity, to: Entity, message: ByteArray): Either<ProtocolError, Unit> = coroutineScope {
+    actual override suspend fun writeToChannel(from: Entity, to: Entity, message: ByteArray): Either<ProtocolError, Unit> = coroutineScope {
         either {
             val topic = registeredTopics[Pair(from, to)]
             logger.debug { "Writing message $message to topic $topic" }
@@ -65,14 +65,14 @@ class MqttProtocol(
         }
     }
 
-    override fun readFromChannel(from: Entity, to: Entity): Either<ProtocolError, Flow<ByteArray>> = either {
+    actual override fun readFromChannel(from: Entity, to: Entity): Either<ProtocolError, Flow<ByteArray>> = either {
         val candidateTopic = ensureNotNull(registeredTopics[Pair(from, to)]) { ProtocolError.EntityNotRegistered(from) }
         val channel = ensureNotNull(topicChannels[candidateTopic]) { ProtocolError.EntityNotRegistered(from) }
         logger.debug { "Reading from topic $candidateTopic" }
         channel.asSharedFlow()
     }
 
-    override suspend fun initialize(): Either<ProtocolError, Unit> = coroutineScope {
+    actual override suspend fun initialize(): Either<ProtocolError, Unit> = coroutineScope {
         either {
             Either.catch {
                 client = MQTTClient(
@@ -101,7 +101,7 @@ class MqttProtocol(
 
             }.mapLeft { ProtocolError.ProtocolException(it) }.bind()
 
-            listenerJob = scope.launch {
+            listenerJob = scope.launch(coroutineDispatcher){
                 logger.debug { "client setup" }
                 while(true){
                     delay(50)  // avoid blocking the cpu
@@ -111,7 +111,7 @@ class MqttProtocol(
         }
     }
 
-    override fun finalize(): Either<ProtocolError, Unit>  {
+    actual override fun finalize(): Either<ProtocolError, Unit>  {
         client.disconnect(ReasonCode.SUCCESS)
         scope.coroutineContext.cancelChildren()
         logger.debug { "client finalized" }
