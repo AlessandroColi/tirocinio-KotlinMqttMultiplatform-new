@@ -58,6 +58,13 @@ kotlin {
             }
         }
 
+        val jsMain by creating{
+            dependencies{
+                dependsOn(commonMain)
+                implementation(npm("mqtt", "5.5.3")) //todo use toml
+            }
+        }
+
         val jvmMain by getting {
             dependencies {
                 dependsOn(multithreadMain)
