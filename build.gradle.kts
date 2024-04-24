@@ -35,6 +35,10 @@ kotlin {
         }
     }
 
+    js{
+        useCommonJs()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -58,7 +62,7 @@ kotlin {
             }
         }
 
-        val jsMain by creating{
+        val jsMain by getting{
             dependencies{
                 dependsOn(commonMain)
                 implementation(npm("mqtt", "5.5.3")) //todo use toml
@@ -227,7 +231,7 @@ kotlin {
     }
 
     js(IR) {
-        //browser()
+        browser()
         nodejs()
         binaries.library()
     }
@@ -236,7 +240,7 @@ kotlin {
         compilations["main"].defaultSourceSet.dependsOn(sourceSets[targetName+"Main"])
         compilations["test"].defaultSourceSet.dependsOn(kotlin.sourceSets[targetName+"Test"])
         binaries {
-//            executable()
+//            executable() todo capire peroblema build gradle
             sharedLib()
             staticLib()
         }
