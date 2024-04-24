@@ -8,7 +8,9 @@ import it.unibo.gui.SimpleGui
 import it.unibo.gui.Gui
 import kotlinx.coroutines.*
 
-
+/**
+ * runs the simple program to monitor the mqtt comms.
+ */
 class Core {
 
     private val source = Entity("esp32")
@@ -16,11 +18,17 @@ class Core {
     private var gui: Gui = SimpleGui()
     private var mqtt: Protocol = MqttProtocol("test.mosquitto.org",1883, mainTopic = "RiverMonitoring")
 
+    /**
+     * initialize the components, to be called before [run].
+     */
     suspend fun init(){
         mqtt.initialize()
         mqtt.setupChannel(source,dest)
     }
 
+    /**
+     * executes indefinitely the mqtt comms listener.
+     */
     suspend fun run(){
         val res = mqtt.readFromChannel(source, dest)
         res.onLeft { protocolError ->

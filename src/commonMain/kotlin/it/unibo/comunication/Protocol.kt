@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
  * Represents the entity that the [Protocol] is communicating with.
  * An [Entity] is characterized by a [entityName] and an optional [id].
  * The [id] is used to distinguish between multiple entities with the same [entityName].
- * The [data] is used to store additional information about the entity.
+ * The [metadata] is used to store additional information about the entity.
  */
 data class Entity(val entityName: String, val id: String? = null, val metadata: Map<String, String> = emptyMap())
 
