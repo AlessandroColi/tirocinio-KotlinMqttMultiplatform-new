@@ -84,7 +84,7 @@
 
 
                 client = mqtt.connect("mqtt://${host}:${port}", options = options)
-                client.on("connect") { _ ->
+                client.on("connect") { _,_,_ ->
                     println("client initialized")
                     client.subscribe("${mainTopic}/#",
                         options = js("{ qos: 2 }")
@@ -101,10 +101,15 @@
                     println("Error connecting to MQTT broker: ${error.message}")
                 }
                 client.on("message"){
-                        (topic: String, message: dynamic, _) ->
-                    val msg = message.toString()
-                    println("Received message on topic $topic: $msg")
-                    topicChannels[topic as String]?.tryEmit(msg.encodeToByteArray())
+                        topic: String, payload: dynamic, _ ->
+                    //payload is a js buffer so it needs to be converted
+                    val msg = ByteArray(payload.length)
+                    for (i in 0 until payload.length) {
+                        msg[i] = payload[i]
+                    }
+
+                    println("Received message on topic $topic: ${msg.decodeToString()}")
+                    topicChannels[topic]?.tryEmit(msg)
                 }
             }
         }

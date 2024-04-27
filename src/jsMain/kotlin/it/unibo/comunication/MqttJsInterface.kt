@@ -30,11 +30,20 @@ external interface MqttJsClient {
     fun subscribe(topic: String, options: dynamic? = definedExternally,
                   callback: ((err: dynamic, granted: dynamic) -> Unit)? = definedExternally)
     /**
-     * setups what to do on certain events.
+     * setups what to do on certain events, this is to be used for the message event.
      * @param event the trigger for the callback function (message,connect,...).
      * @param callback the function to be executed after the given event.
      */
-    fun on(event: String, callback: (args: Array<dynamic>) -> Unit)
+    fun on(event: String, callback: (String, dynamic, dynamic) -> Unit)
+
+    /**
+     * setups what to do on certain events, this is to be used for the other events.
+     * @param event the trigger for the callback function (message,connect,...).
+     * @param callback the function to be executed after the given event.
+     */
+    fun on(event: String, callback: (dynamic) -> Unit)
+
+
     /**
      * closes the client.
      * @param force the end needs to be forced or not
