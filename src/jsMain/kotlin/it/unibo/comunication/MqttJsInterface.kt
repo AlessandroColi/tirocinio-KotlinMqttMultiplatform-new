@@ -40,7 +40,8 @@ external interface MqttJsClient {
      * @param force the end needs to be forced or not
      * @param callback the function to be called upon complete.
      */
-    fun end(force: Boolean? = definedExternally, callback: (() -> Unit)? = definedExternally)
+    fun end(force: Boolean? = definedExternally, options: dynamic? = definedExternally,
+            callback: (() -> Unit)? = definedExternally)
 }
 
 /**

@@ -49,17 +49,15 @@
             message: ByteArray
         ): Either<ProtocolError, Unit>  = either {
             val topic = registeredTopics[Pair(from, to)]
-            println( "Writing message ${message.decodeToString()} to topic $topic" )
+            println( "Writing message ${message.decodeToString()} to topic $topic" ) //todo go back to message
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
             Either.catch { client.publish(
                 topic,
                 message.decodeToString(),
-                options = object {
-                    var qos = 2
-                    var retain = true
-                }
+                options = js("{ qos: 2, retain: true }")
+
             )   }.mapLeft { ProtocolError.ProtocolException(it) }
         }
 
@@ -80,17 +78,21 @@
                 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
                 mqtt = require("mqtt") as MqttJs
 
-                client = mqtt.connect("mqtt://${host}:${port}")
+                val options = js("{}")
+                options.username = this@MqttProtocol.username
+                options.password = this@MqttProtocol.password
+
+
+                client = mqtt.connect("mqtt://${host}:${port}", options = options)
                 client.on("connect") { _ ->
                     println("client initialized")
                     client.subscribe("${mainTopic}/#",
-                        options = object {
-                            val qos = 2
-                        }) { err: dynamic, granted: dynamic ->
+                        options = js("{ qos: 2 }")
+                    ) { err: dynamic, granted: dynamic ->
                         if (!err as Boolean) {
                             println( "Subscribed to topic: ${granted.topic}" )
                         } else {
-                            println( "connect did not work: ${err.message}" )
+                            println( "Subscribe did not work: ${err.message}" )
                         }
                     }
                 }
@@ -98,7 +100,6 @@
                 client.on("error") { error: dynamic ->
                     println("Error connecting to MQTT broker: ${error.message}")
                 }
-                //TODO forse vanno messi gli on() anche per le altre casistiche?
                 client.on("message"){
                         (topic: String, message: dynamic, _) ->
                     val msg = message.toString()
@@ -109,7 +110,9 @@
         }
 
         actual override fun finalize(): Either<ProtocolError, Unit> {
-            client.end()
+            client.end( options = object {
+                val reasonCode = 0x00
+            })
             println( "client finalized" )
             return Unit.right()
         }
