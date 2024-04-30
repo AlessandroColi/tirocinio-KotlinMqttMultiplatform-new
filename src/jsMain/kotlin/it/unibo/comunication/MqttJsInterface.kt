@@ -1,9 +1,8 @@
 @file:Suppress("REDUNDANT_NULLABLE")
+@file:JsModule("mqtt")
+@file:JsNonModule
+
 package it.unibo.comunication
-/**
- * js function to import a library, only used for mqtt.js in this project.
- */
-external fun require(module: String): dynamic
 /**
  * represents a mqtt client.
  */
@@ -53,13 +52,8 @@ external interface MqttJsClient {
             callback: (() -> Unit)? = definedExternally)
 }
 
-/**
- * the connection to the broker.
- */
-external interface MqttJs {
     /**
      * connect to the broker.
      * @return the client [MqttJsClient].
      */
-    fun connect(host: String, options: dynamic? = definedExternally): MqttJsClient
-}
+    external fun connect(host: String, options: dynamic? = definedExternally): MqttJsClient

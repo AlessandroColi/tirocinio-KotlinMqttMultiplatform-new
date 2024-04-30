@@ -29,13 +29,12 @@
         private val registeredTopics = mutableMapOf<Pair<Entity, Entity>, String>()
         private val topicChannels = mutableMapOf<String, MutableSharedFlow<ByteArray>>()
         private lateinit var client : MqttJsClient
-        private lateinit var mqtt : MqttJs
 
         actual override suspend fun setupChannel(
             source: Entity,
             destination: Entity
         ) {
-            println( "Setting up channel for entity $source to $destination" )
+            println("-Setting up channel for entity $source to $destination" )
             registeredTopics += (source to destination) to toTopics(source, destination)
             registeredTopics += (destination to source) to toTopics(destination, source)
             topicChannels += toTopics(source, destination) to MutableSharedFlow(1)
@@ -49,7 +48,7 @@
             message: ByteArray
         ): Either<ProtocolError, Unit>  = either {
             val topic = registeredTopics[Pair(from, to)]
-            println( "Writing message ${message.decodeToString()} to topic $topic" ) //todo go back to message
+            println("-Writing message ${message.decodeToString()} to topic $topic" ) //todo go back to message
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
@@ -69,56 +68,54 @@
                 { ProtocolError.EntityNotRegistered(from) }
             val channel = ensureNotNull(topicChannels[candidateTopic])
                 { ProtocolError.EntityNotRegistered(from) }
-            println( "Reading from topic $candidateTopic" )
+            println("-Reading from topic $candidateTopic" )
             channel.asSharedFlow()
         }
         actual override suspend fun initialize(): Either<ProtocolError, Unit> = either {
             Either.catch {
-                println("entering init")
-                @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-                mqtt = require("mqtt") as MqttJs
+                println("-entering init")
+                js("require('mqtt');")
 
                 val options = js("{}")
                 options.username = this@MqttProtocol.username
                 options.password = this@MqttProtocol.password
 
+                println("-attempting to connect")
 
-                client = mqtt.connect("mqtt://${host}:${port}", options = options)
+                client = connect("ws://${host}:${port}/mqtt")
                 client.on("connect") { _,_,_ ->
-                    println("client initialized")
+                    println("-client initialized")
                     client.subscribe("${mainTopic}/#",
                         options = js("{ qos: 2 }")
                     ) { err: dynamic, granted: dynamic ->
                         if (!err as Boolean) {
-                            println( "Subscribed to topic: ${granted.topic}" )
+                            println("-Subscribed to topic: ${granted.topic}" )
                         } else {
-                            println( "Subscribe did not work: ${err.message}" )
+                            println("-Subscribe did not work: ${err.message}" )
                         }
                     }
                 }
 
                 client.on("error") { error: dynamic ->
-                    println("Error connecting to MQTT broker: ${error.message}")
+                    println("-Error connecting to MQTT broker: ${error.message}")
                 }
                 client.on("message"){
                         topic: String, payload: dynamic, _ ->
-                    //payload is a js buffer so it needs to be converted
-                    val msg = ByteArray(payload.length)
-                    for (i in 0 until payload.length) {
-                        msg[i] = payload[i]
+                    //payload is a js buffer, so it needs to be converted
+                    val msg = ByteArray(payload.length as Int)
+                    for (i in 0 until payload.length as Int) {
+                        msg[i] = payload[i] as Byte
                     }
 
-                    println("Received message on topic $topic: ${msg.decodeToString()}")
+                    println("-Received message on topic $topic: ${msg.decodeToString()}")
                     topicChannels[topic]?.tryEmit(msg)
                 }
             }
         }
 
         actual override fun finalize(): Either<ProtocolError, Unit> {
-            client.end( options = object {
-                val reasonCode = 0x00
-            })
-            println( "client finalized" )
+            client.end( force = true , options = js("{reasonCode : 0x00};"))
+            println("-client finalized" )
             return Unit.right()
         }
 
