@@ -68,7 +68,7 @@ kotlin {
             dependencies{
                 dependsOn(commonMain)
                 implementation(npm("mqtt", "5.5.3")) //todo use toml
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:1.9.23")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:1.9.24")
             }
         }
 
