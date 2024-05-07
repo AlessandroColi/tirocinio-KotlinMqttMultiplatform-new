@@ -6,8 +6,6 @@
     "node": "20.12"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
-    "mqtt": "^5.5.5",
-    "process": "^0.11.10"
+    "mqtt": "^5.5.3"
   }
 }

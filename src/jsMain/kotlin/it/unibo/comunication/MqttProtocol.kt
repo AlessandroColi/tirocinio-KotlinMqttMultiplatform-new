@@ -28,7 +28,7 @@
 
         private val registeredTopics = mutableMapOf<Pair<Entity, Entity>, String>()
         private val topicChannels = mutableMapOf<String, MutableSharedFlow<ByteArray>>()
-        private lateinit var client : MqttJsClient
+        private lateinit var client: MqttClient
 
         actual override suspend fun setupChannel(
             source: Entity,
@@ -74,15 +74,20 @@
         actual override suspend fun initialize(): Either<ProtocolError, Unit> = either {
             Either.catch {
                 println("-entering init")
-                js("require('mqtt');")
-
-                val options = js("{}")
+                val options = js("{" +
+                        "  keepalive: 50," +
+                        "  protocolId: 'MQTT'," +
+                        "  protocolVersion: 5," +
+                        "  clean: false," +
+                        "}")
                 options.username = this@MqttProtocol.username
                 options.password = this@MqttProtocol.password
-
+                options.clientId = this@MqttProtocol.username + "11111111" //todo fai bene gen clientId
                 println("-attempting to connect")
+                client = connect("ws://${host}:${port}/mqtt", options = options)
 
-                client = connect("ws://${host}:${port}/mqtt")
+                println("-waiting to connect")
+
                 client.on("connect") { _,_,_ ->
                     println("-client initialized")
                     client.subscribe("${mainTopic}/#",

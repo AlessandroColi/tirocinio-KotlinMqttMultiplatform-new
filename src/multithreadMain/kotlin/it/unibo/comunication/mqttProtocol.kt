@@ -84,6 +84,7 @@ actual class MqttProtocol actual constructor(
                     password = password?.encodeToByteArray()?.toUByteArray(),
                     keepAlive = 5000,
                     cleanStart = false,
+                    webSocket = "/mqtt",
                 ){
                     logger.debug { "New message arrived on topic $it.topicName" }
                     requireNotNull(it.payload) { "Message cannot be null" }

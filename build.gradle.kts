@@ -36,9 +36,14 @@ kotlin {
     }
 
     js(IR) {
-        browser()
-        nodejs()
+        browser{
+            useEsModules()
+        }
+        nodejs{
+            useCommonJs()
+        }
         binaries.library()
+        binaries.executable()
     }
 
     sourceSets {

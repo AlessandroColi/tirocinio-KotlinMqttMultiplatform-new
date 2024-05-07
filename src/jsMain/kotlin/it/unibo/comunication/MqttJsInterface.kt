@@ -1,12 +1,10 @@
 @file:Suppress("REDUNDANT_NULLABLE")
 @file:JsModule("mqtt")
-@file:JsNonModule
-
 package it.unibo.comunication
 /**
  * represents a mqtt client.
  */
-external interface MqttJsClient {
+external class MqttClient {
     /**
      * publish a message on the given topic.
      * @param topic the topic.
@@ -20,6 +18,7 @@ external interface MqttJsClient {
         options: dynamic? = definedExternally,
         callback: ((err:dynamic) -> Unit)? = definedExternally
     )
+
     /**
      * subscribe to the given topic.
      * @param topic the topic.
@@ -42,7 +41,6 @@ external interface MqttJsClient {
      */
     fun on(event: String, callback: (dynamic) -> Unit)
 
-
     /**
      * closes the client.
      * @param force the end needs to be forced or not
@@ -52,8 +50,8 @@ external interface MqttJsClient {
             callback: (() -> Unit)? = definedExternally)
 }
 
-    /**
-     * connect to the broker.
-     * @return the client [MqttJsClient].
-     */
-    external fun connect(host: String, options: dynamic? = definedExternally): MqttJsClient
+/**
+ * connect to the broker.
+ * @return the client [MqttClient].
+ */
+external fun connect(brokerUrl: String, options: dynamic? = definedExternally): MqttClient
