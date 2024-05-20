@@ -18,8 +18,8 @@ object ProjectConfig : AbstractProjectConfig() {
 @OptIn(ExperimentalCoroutinesApi::class)
 class CommunicatorTest : StringSpec({
 
-    val host = "test.mosquitto.org"
-    val port = 8080
+    val host = "localhost"
+    val port = 1884
 //    val password = "password"
 
     val sourceEntity = Entity("source")

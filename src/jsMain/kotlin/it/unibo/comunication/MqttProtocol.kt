@@ -9,6 +9,7 @@
     import kotlinx.coroutines.flow.Flow
     import kotlinx.coroutines.flow.MutableSharedFlow
     import kotlinx.coroutines.flow.asSharedFlow
+    import kotlin.random.Random
 
     /**
      * Represents the MQTT protocol.
@@ -34,7 +35,7 @@
             source: Entity,
             destination: Entity
         ) {
-            println("-Setting up channel for entity $source to $destination" )
+            logger.debug { "-Setting up channel for entity $source to $destination" }
             registeredTopics += (source to destination) to toTopics(source, destination)
             registeredTopics += (destination to source) to toTopics(destination, source)
             topicChannels += toTopics(source, destination) to MutableSharedFlow(1)
@@ -48,7 +49,7 @@
             message: ByteArray
         ): Either<ProtocolError, Unit>  = either {
             val topic = registeredTopics[Pair(from, to)]
-            println("-Writing message ${message.decodeToString()} to topic $topic" ) //todo go back to message
+            logger.debug {"-Writing message ${message.decodeToString()} to topic $topic" } //todo go back to message
 
             ensureNotNull(topic) { ProtocolError.EntityNotRegistered(to) }
 
@@ -68,41 +69,40 @@
                 { ProtocolError.EntityNotRegistered(from) }
             val channel = ensureNotNull(topicChannels[candidateTopic])
                 { ProtocolError.EntityNotRegistered(from) }
-            println("-Reading from topic $candidateTopic" )
+            logger.debug {"-Reading from topic $candidateTopic" }
             channel.asSharedFlow()
         }
         actual override suspend fun initialize(): Either<ProtocolError, Unit> = either {
             Either.catch {
-                println("-entering init")
+                logger.debug {"-entering init"}
                 val options = js("{" +
-                        "  keepalive: 50," +
                         "  protocolId: 'MQTT'," +
                         "  protocolVersion: 5," +
                         "  clean: false," +
                         "}")
                 options.username = this@MqttProtocol.username
                 options.password = this@MqttProtocol.password
-                options.clientId = this@MqttProtocol.username + "11111111" //todo fai bene gen clientId
-                println("-attempting to connect")
-                client = connect("ws://${host}:${port}/mqtt", options = options)
+                options.clientId = Random.nextInt()
+                logger.debug {"-attempting to connect"}
+                client = connect("mqtt://${host}:${port}", options = options)
 
-                println("-waiting to connect")
+                logger.debug {"-waiting to connect"}
 
                 client.on("connect") { _,_,_ ->
-                    println("-client initialized")
+                    logger.debug {"-client initialized"}
                     client.subscribe("${mainTopic}/#",
                         options = js("{ qos: 2 }")
                     ) { err: dynamic, granted: dynamic ->
                         if (!err as Boolean) {
-                            println("-Subscribed to topic: ${granted.topic}" )
+                            logger.debug {"-Subscribed to topic: ${granted.topic}" }
                         } else {
-                            println("-Subscribe did not work: ${err.message}" )
+                            logger.debug {"-Subscribe did not work: ${err.message}" }
                         }
                     }
                 }
 
                 client.on("error") { error: dynamic ->
-                    println("-Error connecting to MQTT broker: ${error.message}")
+                    logger.debug {"-Error connecting to MQTT broker: ${error.message}"}
                 }
                 client.on("message"){
                         topic: String, payload: dynamic, _ ->
@@ -112,7 +112,7 @@
                         msg[i] = payload[i] as Byte
                     }
 
-                    println("-Received message on topic $topic: ${msg.decodeToString()}")
+                    logger.debug {"-Received message on topic $topic: ${msg.decodeToString()}"}
                     topicChannels[topic]?.tryEmit(msg)
                 }
             }
@@ -120,7 +120,7 @@
 
         actual override fun finalize(): Either<ProtocolError, Unit> {
             client.end( force = true , options = js("{reasonCode : 0x00};"))
-            println("-client finalized" )
+            logger.debug {"-client finalized" }
             return Unit.right()
         }
 

@@ -36,9 +36,6 @@ kotlin {
     }
 
     js(IR) {
-        browser{
-            useEsModules()
-        }
         nodejs{
             useCommonJs()
         }
@@ -242,7 +239,7 @@ kotlin {
         compilations["main"].defaultSourceSet.dependsOn(sourceSets[targetName+"Main"])
         compilations["test"].defaultSourceSet.dependsOn(kotlin.sourceSets[targetName+"Test"])
         binaries {
-            executable() //todo capire peroblema build gradle
+            executable()
             sharedLib()
             staticLib()
         }
