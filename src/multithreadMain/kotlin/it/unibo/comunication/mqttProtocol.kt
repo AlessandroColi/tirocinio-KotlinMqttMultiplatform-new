@@ -93,11 +93,6 @@ actual class MqttProtocol actual constructor(
                     Subscription("${mainTopic}/#",
                         SubscriptionOptions(qos = Qos.EXACTLY_ONCE))))
 
-                while(!client.connackReceived){
-                    delay(50)  // avoid blocking the cpu
-                    client.step()
-                }
-
             }.mapLeft { ProtocolError.ProtocolException(it) }.bind()
 
             listenerJob = scope.launch(coroutineDispatcher){
