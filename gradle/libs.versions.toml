@@ -1,7 +1,7 @@
 [versions]
 kotest = "5.9.0"
 kotlin = "1.9.24"
-kmqtt = "0.4.6"
+kmqtt = "0.4.7"
 
 [libraries]
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
