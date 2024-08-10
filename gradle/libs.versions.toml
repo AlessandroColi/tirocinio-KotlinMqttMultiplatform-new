@@ -16,7 +16,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version = "6.0.9" }
 kmqtt-common = { module = "io.github.davidepianca98:kmqtt-common", version.ref = "kmqtt" }
 kmqtt-client = { module = "io.github.davidepianca98:kmqtt-client", version.ref = "kmqtt" }
-slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.13" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.16" }
 
 
 [bundles]
